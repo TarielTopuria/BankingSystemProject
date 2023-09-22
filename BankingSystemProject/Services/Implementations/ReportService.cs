@@ -24,7 +24,6 @@ namespace BankingSystem.Services.Implementations
                 var result = await context.Users
                     .Where(u => u.RegistrationDate >= dates.FromDate && u.RegistrationDate <= dates.ToDate)
                     .CountAsync();
-
                 return result;
             }catch (Exception ex) 
             {
@@ -34,33 +33,21 @@ namespace BankingSystem.Services.Implementations
         }
 
         /// <summary>
-        /// აგენერირებს რეპორტს თუ რა ოდენობის საკომისიო (სარგებელი) მიიღო ბანკმა მითითებული დროის შუალედში, რომელიც კონვერტირდება მითითებულ ვალუტაში
+        /// აგენერირებს რეპორტს თუ რა ოდენობის საკომისიო (სარგებელი) მიიღო ბანკმა მითითებული დროის შუალედში და მითითებულ ვალუტაში
         /// </summary>
         public async Task<decimal> GetCommisionAmountFromTransactionsAsync(BetweenDateCurrencyDTO value)
         {
             try
             {
                 var transactions = await context.Transactions
-                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate)
+                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
                     .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
 
                 var transactionsAmount = 0m;
 
                 foreach (var transaction in transactions)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync();
-
-                        transactionsAmount += transaction.CommisionAmount * exchangeRate;
-                    }
-                    else
-                    {
-                        transactionsAmount += transaction.CommisionAmount;
-                    }
+                    transactionsAmount += transaction.CommisionAmount;
                 }
 
                 return transactionsAmount;
@@ -70,35 +57,23 @@ namespace BankingSystem.Services.Implementations
         }
 
         /// <summary>
-        /// აგენერირებს რეპორტს თუ საშუალოდ რა ოდენობის საკომისიო (სარგებელი) მიიღო ბანკმა მითითებული დროის შუალედში, რომელიც კონვერტირდება მითითებულ ვალუტაში
+        /// აგენერირებს რეპორტს თუ საშუალოდ რა ოდენობის საკომისიო (სარგებელი) მიიღო ბანკმა მითითებული დროის შუალედში და მითითებულ ვალუტაში
         /// </summary>
         public async Task<decimal> GetCommisionAmountMeanFromTransactionsAsync(BetweenDateCurrencyDTO value)
         {
             try
             {
                 var transactions = await context.Transactions
-                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate)
+                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
                     .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
 
-                var transactionsAmountMean = 0m;
+                var transactionsAmount = 0m;
 
                 foreach (var transaction in transactions)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync();
-
-                        transactionsAmountMean += transaction.CommisionAmount * exchangeRate / transactions.Count;
-                    }
-                    else
-                    {
-                        transactionsAmountMean += transaction.CommisionAmount / transactions.Count;
-                    }
+                    transactionsAmount += transaction.CommisionAmount;
                 }
-                return transactionsAmountMean;
+                return transactionsAmount / transactions.Count;
             }
             catch (Exception ex)
             {
@@ -108,33 +83,21 @@ namespace BankingSystem.Services.Implementations
         }
 
         /// <summary>
-        /// აგენერირებს რეპორტს თუ რა ოდენობის გადარიცხვა (ტრანზაქცია) განხორციელდა მითითებული დროის შუალედში, რომელიც კონვერტირდება მითითებულ ვალუტაში
+        /// აგენერირებს რეპორტს თუ რა ოდენობის გადარიცხვა (ტრანზაქცია) განხორციელდა მითითებული დროის შუალედში და მითითებულ ვალუტაში
         /// </summary>
         public async Task<decimal> GetTransactionsAmountAsync(BetweenDateCurrencyDTO value)
         {
             try
             {
                 var transactions = await context.Transactions
-                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate)
+                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
                     .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
 
                 var transactionsAmount = 0m;
 
                 foreach (var transaction in transactions)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync();
-
-                        transactionsAmount += transaction.Amount * exchangeRate;
-                    }
-                    else
-                    {
-                        transactionsAmount += transaction.Amount;
-                    }
+                    transactionsAmount += (transaction.Amount + transaction.CommisionAmount);
                 }
                 return transactionsAmount;
             }
@@ -146,35 +109,23 @@ namespace BankingSystem.Services.Implementations
         }
 
         /// <summary>
-        /// აგენერირებს რეპორტს თუ საშუალოდ რა ოდენობის გადარიცხვა (ტრანზაქცია) განხორციელდა მითითებული დროის შუალედში, რომელიც კონვერტირდება მითითებულ ვალუტაში
+        /// აგენერირებს რეპორტს თუ საშუალოდ რა ოდენობის გადარიცხვა (ტრანზაქცია) განხორციელდა მითითებული დროის შუალედში და მითითებულ ვალუტაში
         /// </summary>
         public async Task<decimal> GetTransactionsAmountMeanAsync(BetweenDateCurrencyDTO value)
         {
             try
             {
                 var transactions = await context.Transactions
-                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate)
+                    .Where(u => u.TransactionCreateDate >= value.FromDate && u.TransactionCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
                     .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
 
-                var transactionsAmountMean = 0m;
+                var transactionsAmount = 0m;
 
                 foreach (var transaction in transactions)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync();
-
-                        transactionsAmountMean += transaction.Amount * exchangeRate / transactions.Count;
-                    }
-                    else
-                    {
-                        transactionsAmountMean += transaction.Amount / transactions.Count;
-                    }
+                    transactionsAmount += (transaction.Amount + transaction.CommisionAmount);
                 }
-                return transactionsAmountMean;
+                return transactionsAmount / transactions.Count;
             }
             catch (Exception ex)
             {
@@ -278,29 +229,17 @@ namespace BankingSystem.Services.Implementations
         {
             try
             {
-                var transactions = await context.Withdrawals
-                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate)
-                    .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
+                var withdrawals = await context.Withdrawals
+                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
+                    .ToListAsync() ?? throw new BadHttpRequestException("Withdrawals not found");
 
-                var transactionsAmount = 0m;
+                var withdrawalsAmount = 0m;
 
-                foreach (var transaction in transactions)
+                foreach (var withdrawal in withdrawals)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync();
-
-                        transactionsAmount += transaction.Amount * exchangeRate;
-                    }
-                    else
-                    {
-                        transactionsAmount += transaction.Amount;
-                    }
+                    withdrawalsAmount += (withdrawal.Amount + withdrawal.CommisionAmount);
                 }
-                return transactionsAmount;
+                return withdrawalsAmount;
             }
             catch (Exception ex)
             {
@@ -316,29 +255,17 @@ namespace BankingSystem.Services.Implementations
         {
             try
             {
-                var transactions = await context.Withdrawals
-                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate)
-                    .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
+                var withdrawals = await context.Withdrawals
+                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
+                    .ToListAsync() ?? throw new BadHttpRequestException("Withdrawals not found");
 
-                var transactionsAmountMean = 0m;
+                var withdrawalsAmount = 0m;
 
-                foreach (var transaction in transactions)
+                foreach (var withdrawal in withdrawals)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync();
-
-                        transactionsAmountMean += transaction.Amount * exchangeRate / transactions.Count;
-                    }
-                    else
-                    {
-                        transactionsAmountMean += transaction.Amount / transactions.Count;
-                    }
+                    withdrawalsAmount += (withdrawal.Amount + withdrawal.CommisionAmount);
                 }
-                return transactionsAmountMean;
+                return withdrawalsAmount / withdrawals.Count;
             }
             catch (Exception ex)
             {
@@ -354,30 +281,18 @@ namespace BankingSystem.Services.Implementations
         {
             try
             {
-                var transactions = await context.Withdrawals
-                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate)
-                    .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
+                var withdrawals = await context.Withdrawals
+                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
+                    .ToListAsync() ?? throw new BadHttpRequestException("Withdrawals not found");
 
-                var transactionsAmount = 0m;
+                var withdrawalsAmount = 0m;
 
-                foreach (var transaction in transactions)
+                foreach (var withdrawal in withdrawals)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync();
-
-                        transactionsAmount += transaction.CommisionAmount * exchangeRate;
-                    }
-                    else
-                    {
-                        transactionsAmount += transaction.CommisionAmount;
-                    }
+                    withdrawalsAmount += withdrawal.CommisionAmount;
                 }
 
-                return transactionsAmount;
+                return withdrawalsAmount;
 
             }
             catch (Exception ex)
@@ -394,29 +309,17 @@ namespace BankingSystem.Services.Implementations
         {
             try
             {
-                var transactions = await context.Withdrawals
-                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate)
-                    .ToListAsync() ?? throw new BadHttpRequestException("Transactions not found");
+                var withdrawals = await context.Withdrawals
+                    .Where(u => u.WithdrawalCreateDate >= value.FromDate && u.WithdrawalCreateDate <= value.ToDate && u.CurrencyCode == value.CurrencyCode)
+                    .ToListAsync() ?? throw new BadHttpRequestException("Withdrawals not found");
 
-                var transactionsAmountMean = 0m;
+                var withdrawalsAmount = 0m;
 
-                foreach (var transaction in transactions)
+                foreach (var withdrawal in withdrawals)
                 {
-                    if (transaction.CurrencyCode != value.CurrencyCode)
-                    {
-                        var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == transaction.CurrencyCode && rate.ToCurrencyCode == value.CurrencyCode)
-                            .Select(t => t.Rate)
-                            .FirstOrDefaultAsync(); 
-
-                        transactionsAmountMean += transaction.CommisionAmount * exchangeRate / transactions.Count;
-                    }
-                    else
-                    {
-                        transactionsAmountMean += transaction.CommisionAmount / transactions.Count;
-                    }
+                    withdrawalsAmount += withdrawal.CommisionAmount;
                 }
-                return transactionsAmountMean;
+                return withdrawalsAmount / withdrawals.Count;
             }
             catch (Exception ex)
             {

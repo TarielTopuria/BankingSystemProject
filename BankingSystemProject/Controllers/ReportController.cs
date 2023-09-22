@@ -1,5 +1,6 @@
 ﻿using BankingSystem.Core.DTOs;
 using BankingSystem.Services.Interfaces;
+using BankingSystemProject.Core.Enums;
 using BankingSystemProject.Core.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +19,12 @@ namespace BankingSystem.Controllers
             this.reportService = reportService;
         }
 
-        [HttpPost("RegisteredClientCount")]
-        public async Task<IActionResult> GetRegisteredClientCount([FromBody] BetweenDateDTO dates)
+        [HttpGet("RegisteredClientCount")]
+        public async Task<IActionResult> GetRegisteredClientCount(DateTime fromDate, DateTime toDate)
         {
             try
             {
+                BetweenDateDTO dates = new() { FromDate = fromDate, ToDate = toDate };
                 BetweenDateValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(dates);
 
@@ -50,11 +52,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("TransactionsCount")]
-        public async Task<IActionResult> GetTransactionsCount([FromBody] BetweenDateDTO dates)
+        [HttpGet("TransactionsCount")]
+        public async Task<IActionResult> GetTransactionsCount(DateTime fromDate, DateTime toDate)
         {
             try
             {
+                BetweenDateDTO dates = new() { FromDate = fromDate, ToDate = toDate };
                 BetweenDateValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(dates);
 
@@ -82,11 +85,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("TransactionsCountChart")]
-        public async Task<IActionResult> GetTransactionsCountChart([FromBody] BetweenDateDTO dates)
+        [HttpGet("TransactionsCountChart")]
+        public async Task<IActionResult> GetTransactionsCountChart(DateTime fromDate, DateTime toDate)
         {
             try
             {
+                BetweenDateDTO dates = new() { FromDate = fromDate, ToDate = toDate };
                 BetweenDateValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(dates);
 
@@ -114,11 +118,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("WithdrawalsCountChart")]
-        public async Task<IActionResult> GetWithdrawalsCountByDay([FromBody] BetweenDateDTO dates)
+        [HttpGet("WithdrawalsCountChart")]
+        public async Task<IActionResult> GetWithdrawalsCountByDay(DateTime fromDate, DateTime toDate)
         {
             try
             {
+                BetweenDateDTO dates = new() { FromDate = fromDate, ToDate = toDate };
                 BetweenDateValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(dates);
 
@@ -146,11 +151,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("GetWithdrawalsCount")]
-        public async Task<IActionResult> GetWithdrawalsCount([FromBody] BetweenDateDTO dates)
+        [HttpGet("GetWithdrawalsCount")]
+        public async Task<IActionResult> GetWithdrawalsCount(DateTime fromDate, DateTime toDate)
         {
             try
             {
+                BetweenDateDTO dates = new() { FromDate = fromDate, ToDate = toDate };
                 BetweenDateValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(dates);
 
@@ -178,11 +184,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("TransactionsAmount")]
-        public async Task<IActionResult> GetTransactionsAmount([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("TransactionsAmount")]
+        public async Task<IActionResult> GetTransactionsAmount(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 
@@ -210,11 +217,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("WithdrawalsAmount")]
-        public async Task<IActionResult> GetWithdrawalsAmount([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("WithdrawalsAmount")]
+        public async Task<IActionResult> GetWithdrawalsAmount(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 
@@ -242,11 +250,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("TransactionsAmountMean")]
-        public async Task<IActionResult> GetTransactionsAmountMean([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("TransactionsAmountMean")]
+        public async Task<IActionResult> GetTransactionsAmountMean(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 
@@ -274,11 +283,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("WithdrawalsAmountMean")]
-        public async Task<IActionResult> GetWithdrawalsAmountMean([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("WithdrawalsAmountMean")]
+        public async Task<IActionResult> GetWithdrawalsAmountMean(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 
@@ -306,11 +316,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("CommisionAmountFromTransactions")]
-        public async Task<IActionResult> GetCommisionsAmountFromTransactions([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("CommisionAmountFromTransactions")]
+        public async Task<IActionResult> GetCommisionsAmountFromTransactions(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 
@@ -338,11 +349,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("CommisionsAmountFromWithdrawals")]
-        public async Task<IActionResult> GetCommisionsAmountFromWithdrawals([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("CommisionsAmountFromWithdrawals")]
+        public async Task<IActionResult> GetCommisionsAmountFromWithdrawals(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 
@@ -370,11 +382,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("CommisionAmountMeanFromTransactions")]
-        public async Task<IActionResult> GetCommisionAmountMeanFromTransactions([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("CommisionAmountMeanFromTransactions")]
+        public async Task<IActionResult> GetCommisionAmountMeanFromTransactions(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 
@@ -402,11 +415,12 @@ namespace BankingSystem.Controllers
             }
         }
 
-        [HttpPost("CommisionsAmountMeanFromWithdrawals")]
-        public async Task<IActionResult> GetCommisionsAmountMeanFromWithdrawals([FromBody] BetweenDateCurrencyDTO value)
+        [HttpGet("CommisionsAmountMeanFromWithdrawals")]
+        public async Task<IActionResult> GetCommisionsAmountMeanFromWithdrawals(DateTime fromDate, DateTime toDate, Currencies currency)
         {
             try
             {
+                BetweenDateCurrencyDTO value = new() { FromDate = fromDate, ToDate = toDate, CurrencyCode = currency };
                 BetweenDateCurrencyValidator validatorObj = new();
                 var validation = await validatorObj.ValidateAsync(value);
 

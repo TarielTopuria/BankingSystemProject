@@ -129,7 +129,7 @@ namespace BankingSystemProject.Controllers
                 };
 
                 await atmService.WithdrawMoney(withdrawal);
-                return NoContent();
+                return Ok($"{withdrawMoneyControllerDTO.Amount} withdrawn from account");
             }
             catch (BadHttpRequestException ex)
             {

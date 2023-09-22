@@ -1,13 +1,12 @@
 ﻿using BankingSystemProject.Core.Enums;
 
-namespace BankingSystem.Core.DTOs
+namespace BankingSystemProject.Core.DTOs
 {
-    public class TransactionCreateDTO
+    public class TransactionCreateControllerDTO
     {
         public decimal Amount { get; set; }
         public Currencies CurrencyCode { get; set; }
         public string SenderBankAccountIBAN { get; set; }
         public string ReceiverBankAccountIBAN { get; set; }
-        public string UserId { get; set; }
     }
 }

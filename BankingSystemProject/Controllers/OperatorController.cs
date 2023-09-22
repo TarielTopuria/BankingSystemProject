@@ -37,7 +37,7 @@ namespace BankingSystemProject.Controllers
 
                 if (await operatorService.RegisterUser(credentials))
                 {
-                    return NoContent();
+                    return Ok("User created successfully");
                 }
 
                 Log.Error("BadRequest Error occured while attempting to Register User");

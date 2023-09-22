@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using BankingSystem.Core.DTOs;
 using BankingSystem.Services.Interfaces;
+using BankingSystemProject.Core.DTOs;
 using BankingSystemProject.Core.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,11 @@ namespace BankingSystemProject.Controllers
     [Authorize(Roles = "Client")] //მეთოდებზე წვდომა აქვს მხოლოდ კლიენტს, ვინაიდან მხოლოდ კლიენტს შეიძლება ჰქონდეს ბარათები და ანგარიშები
     public class NetBankController : ControllerBase
     {
-        private readonly INetBankService userService;
+        private readonly INetBankService netBankService;
 
-        public NetBankController(INetBankService userService)
+        public NetBankController(INetBankService netBankService)
         {
-            this.userService = userService;
+            this.netBankService = netBankService;
         }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace BankingSystemProject.Controllers
                 // მოაქვს დალოგინებული მომხმარებლის ტოკენში ჩასეტილი ქლაიმები
                 var userDataClaim = User.FindFirstValue(ClaimTypes.SerialNumber);
 
-                var bankAccounts = await userService.GetBankAccountsForUserAsync(userDataClaim);
+                var bankAccounts = await netBankService.GetBankAccountsForUserAsync(userDataClaim);
 
                 if (bankAccounts == null)
                 {
@@ -59,7 +60,7 @@ namespace BankingSystemProject.Controllers
                 // მოაქვს დალოგინებული მომხმარებლის ტოკენში ჩასეტილი ქლაიმები
                 var userDataClaim = User.FindFirstValue(ClaimTypes.SerialNumber);
 
-                var cards = await userService.GetCardsForUserAsync(userDataClaim);
+                var cards = await netBankService.GetCardsForUserAsync(userDataClaim);
 
                 if (cards == null)
                 {
@@ -80,10 +81,22 @@ namespace BankingSystemProject.Controllers
         /// ქმნის ტრანზაქციას დალოგინებული მომხმარებლისთვის
         /// </summary>
         [HttpPost("CreateTransaction")]
-        public async Task<IActionResult> CreateTransactionAsync([FromBody] TransactionCreateDTO transactionCreateDTO)
+        public async Task<IActionResult> CreateTransactionAsync([FromBody] TransactionCreateControllerDTO transactionCreateControllerDTO)
         {
             try
             {
+                // მოაქვს დალოგინებული მომხმარებლის ტოკენში ჩასეტილი ქლაიმები
+                var userDataClaim = User.FindFirstValue(ClaimTypes.SerialNumber);
+
+                TransactionCreateDTO transactionCreateDTO = new() 
+                { 
+                    Amount = transactionCreateControllerDTO.Amount, 
+                    SenderBankAccountIBAN = transactionCreateControllerDTO.SenderBankAccountIBAN,
+                    ReceiverBankAccountIBAN = transactionCreateControllerDTO.ReceiverBankAccountIBAN,
+                    CurrencyCode = transactionCreateControllerDTO.CurrencyCode,
+                    UserId = userDataClaim
+                };
+
                 TransactionCreateValidator validator = new();
                 var validation = await validator.ValidateAsync(transactionCreateDTO);
 
@@ -92,8 +105,13 @@ namespace BankingSystemProject.Controllers
                     return BadRequest(validation.Errors);
                 }
 
-                await userService.CreateTransactionAsync(transactionCreateDTO);
+                await netBankService.CreateTransactionAsync(transactionCreateDTO);
                 return Ok("Transaction created successfully.");
+            }
+            catch (BadHttpRequestException ex)
+            {
+                Log.Error(ex, "An error occurred while creating a transaction: SenderIBAN does not belong to sender user");
+                return BadRequest($"Error: {ex.Message}");
             }
             catch (Exception ex)
             {
