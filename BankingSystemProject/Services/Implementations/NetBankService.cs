@@ -67,16 +67,16 @@ namespace BankingSystemProject.Services.Implementations
 
                 if (senderAccount.UserId == receiverAccount.UserId)
                 {
-                    // Check if sender has sufficient balance
+                    // ამოწმებს ბალანსი საკმარისია თუ არა
                     if (senderAccount.Amount < amountToTransfer)
                     {
                         throw new Exception("Insufficient balance.");
                     }
 
-                    // Check if sender's currency is different from the transaction currency
+                    // ამოწმებს ტრანზაქციის ვალუტა და გამგზავნის ანგარიშის ვალუტა იდენტურია თუ არა
                     if (senderCurrency != transactionCreateDTO.CurrencyCode)
                     {
-                        // Find the exchange rate from sender's currency to the transaction currency
+                        // აბრუნებს შესაბამის გაცვლით კურსს
                         var exchangeRate = await context.ExchangeRates
                             .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == senderCurrency)
                             .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
@@ -84,35 +84,30 @@ namespace BankingSystemProject.Services.Implementations
                         decimal rate = exchangeRate.Rate;
                         decimal convertedAmount = amountToTransfer * rate;
 
-                        // Deduct the converted amount from the sender's account
                         senderAccount.Amount -= convertedAmount;
 
-                        // Check if receiver's currency is also different from the transaction currency
+                        // ამოწმებს მიმღების ანგარიშის ვალუტა განსხვავდება თუ არა ტრანზქციის ვალუტისგან
                         if (receiverCurrency != transactionCreateDTO.CurrencyCode)
                         {
-                            // Find the exchange rate from the transaction currency to receiver's currency
+                            // აბრუნებს შესაბამის გაცვლით კურსს
                             var receiverExchangeRate = await context.ExchangeRates
                                 .Where(rate => rate.FromCurrencyCode == receiverCurrency && rate.ToCurrencyCode == transactionCreateDTO.CurrencyCode)
                                 .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
 
                             decimal receiverRate = receiverExchangeRate.Rate;
                             decimal finalConvertedAmount = convertedAmount * receiverRate;
-
-                            // Add the final converted amount to the receiver's account
                             receiverAccount.Amount += finalConvertedAmount;
                         }
                         else
                         {
-                            // Add the converted amount (in the transaction currency) to the receiver's account
                             receiverAccount.Amount += amountToTransfer;
                         }
                     }
                     else if (receiverCurrency != transactionCreateDTO.CurrencyCode)
                     {
-                        // Sender's currency is the same as the transaction currency,
-                        // but receiver's currency is different. Convert and add to receiver's account.
+                        // გამგზავნის ანგარიშის ვალუტა ტრანზქციის ვალუტის იდენტურია,
+                        // თუმცა მიმღების ანგარიში განსხვავდება.
 
-                        // Find the exchange rate from transaction currency to receiver's currency
                         var receiverExchangeRate = await context.ExchangeRates
                             .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == receiverCurrency)
                             .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
@@ -120,13 +115,12 @@ namespace BankingSystemProject.Services.Implementations
                         decimal receiverRate = receiverExchangeRate.Rate;
                         decimal convertedAmount = amountToTransfer * receiverRate;
 
-                        // Add the converted amount to the receiver's account
                         senderAccount.Amount -= amountToTransfer;
                         receiverAccount.Amount += convertedAmount;
                     }
                     else
                     {
-                        // Both sender and receiver have the same currency, no need for conversion
+                        // მიმღებისა და გამგზავნი მომხმარებლის ვალუტები იდენტურია და შეესაბამება ტრანზაქციი ვალუტას.
                         senderAccount.Amount -= amountToTransfer;
                         receiverAccount.Amount += amountToTransfer;
                     }
@@ -142,11 +136,8 @@ namespace BankingSystemProject.Services.Implementations
                     {
                         throw new Exception("Insufficient balance.");
                     }
-
-                    // Check if sender's currency is different from the transaction currency
                     if (senderCurrency != transactionCreateDTO.CurrencyCode)
                     {
-                        // Find the exchange rate from sender's currency to the transaction currency
                         var exchangeRate = await context.ExchangeRates
                             .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == senderCurrency)
                             .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
@@ -155,13 +146,10 @@ namespace BankingSystemProject.Services.Implementations
                         decimal convertedAmount = amountToTransfer * rate;
                         commissionAmount *= exchangeRate.Rate;
 
-                        // Deduct the converted amount from the sender's account
                         senderAccount.Amount -= (convertedAmount + finalCommissionAmount);
 
-                        // Check if receiver's currency is also different from the transaction currency
                         if (receiverCurrency != transactionCreateDTO.CurrencyCode)
                         {
-                            // Find the exchange rate from the transaction currency to receiver's currency
                             var receiverExchangeRate = await context.ExchangeRates
                                 .Where(rate => rate.FromCurrencyCode == receiverCurrency && rate.ToCurrencyCode == transactionCreateDTO.CurrencyCode)
                                 .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
@@ -169,21 +157,15 @@ namespace BankingSystemProject.Services.Implementations
                             decimal receiverRate = receiverExchangeRate.Rate;
                             decimal finalConvertedAmount = convertedAmount * receiverRate;
 
-                            // Add the final converted amount to the receiver's account
                             receiverAccount.Amount += finalConvertedAmount;
                         }
                         else
                         {
-                            // Add the converted amount (in the transaction currency) to the receiver's account
                             receiverAccount.Amount += amountToTransfer;
                         }
                     }
                     else if (receiverCurrency != transactionCreateDTO.CurrencyCode)
                     {
-                        // Sender's currency is the same as the transaction currency,
-                        // but receiver's currency is different. Convert and add to receiver's account.
-
-                        // Find the exchange rate from transaction currency to receiver's currency
                         var receiverExchangeRate = await context.ExchangeRates
                             .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == receiverCurrency)
                             .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
@@ -191,13 +173,11 @@ namespace BankingSystemProject.Services.Implementations
                         decimal receiverRate = receiverExchangeRate.Rate;
                         decimal convertedAmount = amountToTransfer * receiverRate;
 
-                        // Add the converted amount to the receiver's account
                         senderAccount.Amount -= (amountToTransfer + finalCommissionAmount);
                         receiverAccount.Amount += convertedAmount;
                     }
                     else
                     {
-                        // Both sender and receiver have the same currency, no need for conversion
                         senderAccount.Amount -= (amountToTransfer + finalCommissionAmount);
                         receiverAccount.Amount += amountToTransfer;
                     }
