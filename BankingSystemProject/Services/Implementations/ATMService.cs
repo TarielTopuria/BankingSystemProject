@@ -65,6 +65,11 @@ namespace BankingSystemProject.Services.Implementations
 
                 return true;
             }
+            catch (BadHttpRequestException ex)
+            {
+                Log.Error(ex.Message);
+                throw new BadHttpRequestException(ex.Message);
+            }
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while changing the PIN.");
