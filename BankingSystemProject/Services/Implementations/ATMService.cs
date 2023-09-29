@@ -4,6 +4,7 @@ using BankingSystemProject.Data;
 using BankingSystemProject.Data.Tables;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Text.RegularExpressions;
 
 namespace BankingSystemProject.Services.Implementations
 {
@@ -37,7 +38,7 @@ namespace BankingSystemProject.Services.Implementations
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while getting the balance.");
-                throw;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -48,6 +49,11 @@ namespace BankingSystemProject.Services.Implementations
         {
             try
             {
+                if (!Regex.IsMatch(changePinDTO.NewPIN, @"^\d{4}$"))
+                {
+                    Log.Error("NewPIN must contain exactly 4 digits.");
+                    throw new BadHttpRequestException("NewPIN must contain exactly 4 digits.");
+                }
                 // აბრუნებს ბარათს შეყვანილი ბარათის ნომრის მიხედვით
                 var card = await context.Cards
                     .Where(t => t.CardNumber == changePinDTO.CardNumber && t.ExpirationDate > DateTime.Now)
@@ -62,7 +68,7 @@ namespace BankingSystemProject.Services.Implementations
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while changing the PIN.");
-                throw;
+                throw new Exception (ex.Message);
             }
         }
 
@@ -109,10 +115,10 @@ namespace BankingSystemProject.Services.Implementations
                 foreach (var lastTransaction in lastTransactions)
                 {
                     //თუ ბოლო 24 საათში შესრულებული ტრანზაქცია არ არის ლარში, აკონვერტირებს შესაბამის ვალუტაში
-                    if (lastTransaction.CurrencyCode != Core.Enums.Currencies.GEL)
+                    if (lastTransaction.CurrencyCode != Core.Enums.CurrenciesEnum.GEL)
                     {
                         var exchangeRate = await context.ExchangeRates
-                            .Where(rate => rate.FromCurrencyCode == lastTransaction.CurrencyCode && rate.ToCurrencyCode == Core.Enums.Currencies.GEL)
+                            .Where(rate => rate.FromCurrencyCode == lastTransaction.CurrencyCode && rate.ToCurrencyCode == Core.Enums.CurrenciesEnum.GEL)
                             .Select(t => t.Rate)
                             .FirstOrDefaultAsync();
 

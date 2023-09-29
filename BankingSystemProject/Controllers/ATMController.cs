@@ -23,7 +23,7 @@ namespace BankingSystemProject.Controllers
         /// <summary>
         /// აბრუნებს ბალანს ავტორიზირებული მომხმარებლისთვის
         /// </summary>
-        [HttpPost("GetBalance")]
+        [HttpGet("GetBalance")]
         public async Task<IActionResult> GetBalanceAsync()
         {
             try
@@ -37,6 +37,11 @@ namespace BankingSystemProject.Controllers
 
                 var balance = await atmService.GetBalanceAsync(userDataClaim);
                 return Ok(balance);
+            }
+            catch(BadHttpRequestException ex)
+            {
+                Log.Error(ex.Message);
+                return BadRequest(ex.Message);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -63,12 +68,6 @@ namespace BankingSystemProject.Controllers
                 {
                     Log.Information("UserData claim not found.");
                     return BadRequest("UserData claim not found.");
-                }
-
-                if (string.IsNullOrEmpty(newPIN) || newPIN.Length != 4)
-                {
-                    Log.Information("Invalid PIN format. The PIN must be a 4-digit code.");
-                    return BadRequest("Invalid PIN format. The PIN must be a 4-digit code.");
                 }
 
                 var pinToChange = new ChangePinDTO()

@@ -12,7 +12,7 @@ namespace BankingSystemProject.Data.Tables
         public int Id { get; set; }
         public decimal Amount { get; set; }
         public decimal CommisionAmount { get; set; }
-        public Currencies CurrencyCode { get; set; }
+        public CurrenciesEnum CurrencyCode { get; set; }
         public string SenderBankAccountIBAN { get; set; }
         public string ReceiverBankAccountIBAN { get; set; }
         public DateTime TransactionCreateDate { get; set; } = DateTime.Now;

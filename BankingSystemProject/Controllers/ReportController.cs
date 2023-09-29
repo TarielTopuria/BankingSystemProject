@@ -185,7 +185,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("TransactionsAmount")]
-        public async Task<IActionResult> GetTransactionsAmount(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetTransactionsAmount(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {
@@ -218,7 +218,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("WithdrawalsAmount")]
-        public async Task<IActionResult> GetWithdrawalsAmount(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetWithdrawalsAmount(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {
@@ -251,7 +251,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("TransactionsAmountMean")]
-        public async Task<IActionResult> GetTransactionsAmountMean(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetTransactionsAmountMean(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {
@@ -284,7 +284,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("WithdrawalsAmountMean")]
-        public async Task<IActionResult> GetWithdrawalsAmountMean(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetWithdrawalsAmountMean(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {
@@ -317,7 +317,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("CommisionAmountFromTransactions")]
-        public async Task<IActionResult> GetCommisionsAmountFromTransactions(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetCommisionsAmountFromTransactions(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {
@@ -350,7 +350,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("CommisionsAmountFromWithdrawals")]
-        public async Task<IActionResult> GetCommisionsAmountFromWithdrawals(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetCommisionsAmountFromWithdrawals(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {
@@ -383,7 +383,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("CommisionAmountMeanFromTransactions")]
-        public async Task<IActionResult> GetCommisionAmountMeanFromTransactions(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetCommisionAmountMeanFromTransactions(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {
@@ -416,7 +416,7 @@ namespace BankingSystem.Controllers
         }
 
         [HttpGet("CommisionsAmountMeanFromWithdrawals")]
-        public async Task<IActionResult> GetCommisionsAmountMeanFromWithdrawals(DateTime fromDate, DateTime toDate, Currencies currency)
+        public async Task<IActionResult> GetCommisionsAmountMeanFromWithdrawals(DateTime fromDate, DateTime toDate, CurrenciesEnum currency)
         {
             try
             {

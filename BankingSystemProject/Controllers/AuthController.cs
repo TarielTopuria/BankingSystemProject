@@ -34,14 +34,9 @@ namespace BankingSystemProject.Controllers
                 var token = await authService.OnlineBankLogin(credentials);
                 return Ok(token);
             }
-            catch (ArgumentException ex)
-            {
-                Log.Error(ex, "Error occurred during OnlineBankLogin");
-                return BadRequest(ex.Message);
-            }
             catch (BadHttpRequestException ex)
             {
-                Log.Error(ex, "Error occurred during OnlineBankLogin");
+                Log.Error(ex, "Username or password is incorrect");
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
@@ -69,7 +64,7 @@ namespace BankingSystemProject.Controllers
             }
             catch (BadHttpRequestException ex)
             {
-                Log.Error(ex, "Error occurred during ATMLogin");
+                Log.Error(ex.Message, "Error occurred during ATMLogin");
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)

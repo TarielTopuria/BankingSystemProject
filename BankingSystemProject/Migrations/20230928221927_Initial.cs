@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace BankingSystemProject.Migrations
 {
     /// <inheritdoc />
@@ -269,6 +271,17 @@ namespace BankingSystemProject.Migrations
                         principalTable: "BankAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "3ed61982-4d8f-40d2-bd23-8df9e2e3a969", "3d1bb8e5-05a5-46dc-ac39-52706637b878", "Client", "CLIENT" },
+                    { "72af3673-00f3-4b27-9844-ea2905ce649e", "f7108379-80c8-400d-a94b-bef79406b9e3", "Operator", "OPERATOR" },
+                    { "9961d7d2-3495-485b-9046-5594b6459ddc", "c71a386f-5ccb-4ff2-8069-4d1ff58b8543", "Admin", "ADMIN" },
+                    { "fa81dbaf-14f6-4b7d-8300-2c407bbb8852", "662cfa02-9ed8-46c7-9f1b-c372a157bea7", "Manager", "MANAGER" }
                 });
 
             migrationBuilder.CreateIndex(

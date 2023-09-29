@@ -1,6 +1,6 @@
 ﻿namespace BankingSystemProject.Core.Enums
 {
-    public enum Roles
+    public enum RolesEnum
     {
         Admin = 1,
         Manager = 2,

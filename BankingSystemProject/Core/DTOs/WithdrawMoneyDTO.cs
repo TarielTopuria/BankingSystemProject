@@ -6,6 +6,6 @@ namespace BankingSystemProject.Core.DTOs
     {
         public string CardNumber { get; set; }
         public decimal Amount { get; set; }
-        public Currencies CurrencyCode { get ; set; }
+        public CurrenciesEnum CurrencyCode { get ; set; }
     }
 }

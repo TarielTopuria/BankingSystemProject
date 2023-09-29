@@ -22,168 +22,7 @@ namespace BankingSystemProject.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.BankAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("CurrencyCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IBAN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("BankAccounts");
-                });
-
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.Card", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BankAccountId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CVV")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CardHolder")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CardNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PIN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BankAccountId");
-
-                    b.ToTable("Cards");
-                });
-
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.ExchangeRate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FromCurrencyCode")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Rate")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ToCurrencyCode")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ExchangeRates");
-                });
-
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.Transaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("CommisionAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("CurrencyCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReceiverBankAccountIBAN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderBankAccountIBAN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("TransactionCreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SenderUserId");
-
-                    b.ToTable("Transactions");
-                });
-
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.Withdrawal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("CommisionAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("CurrencyCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("WithdrawalCreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Withdrawals");
-                });
-
-            modelBuilder.Entity("BankingSystemProject.Models.User", b =>
+            modelBuilder.Entity("BankingSystemProject.Data.Models.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -267,6 +106,167 @@ namespace BankingSystemProject.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.BankAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CurrencyCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IBAN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BankAccounts");
+                });
+
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.Card", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BankAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CVV")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CardHolder")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CardNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PIN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BankAccountId");
+
+                    b.ToTable("Cards");
+                });
+
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.ExchangeRate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("FromCurrencyCode")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ToCurrencyCode")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExchangeRates");
+                });
+
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.Transaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CommisionAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CurrencyCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReceiverBankAccountIBAN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderBankAccountIBAN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("TransactionCreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SenderUserId");
+
+                    b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.Withdrawal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CommisionAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CurrencyCode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("WithdrawalCreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Withdrawals");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -292,6 +292,36 @@ namespace BankingSystemProject.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "9961d7d2-3495-485b-9046-5594b6459ddc",
+                            ConcurrencyStamp = "c71a386f-5ccb-4ff2-8069-4d1ff58b8543",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "fa81dbaf-14f6-4b7d-8300-2c407bbb8852",
+                            ConcurrencyStamp = "662cfa02-9ed8-46c7-9f1b-c372a157bea7",
+                            Name = "Manager",
+                            NormalizedName = "MANAGER"
+                        },
+                        new
+                        {
+                            Id = "72af3673-00f3-4b27-9844-ea2905ce649e",
+                            ConcurrencyStamp = "f7108379-80c8-400d-a94b-bef79406b9e3",
+                            Name = "Operator",
+                            NormalizedName = "OPERATOR"
+                        },
+                        new
+                        {
+                            Id = "3ed61982-4d8f-40d2-bd23-8df9e2e3a969",
+                            ConcurrencyStamp = "3d1bb8e5-05a5-46dc-ac39-52706637b878",
+                            Name = "Client",
+                            NormalizedName = "CLIENT"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -400,9 +430,9 @@ namespace BankingSystemProject.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.BankAccount", b =>
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.BankAccount", b =>
                 {
-                    b.HasOne("BankingSystemProject.Models.User", "User")
+                    b.HasOne("BankingSystemProject.Data.Models.User", "User")
                         .WithMany("BankAccounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -411,9 +441,9 @@ namespace BankingSystemProject.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.Card", b =>
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.Card", b =>
                 {
-                    b.HasOne("BankingSystemProject.Core.Tables.BankAccount", "BankAccount")
+                    b.HasOne("BankingSystemProject.Data.Tables.BankAccount", "BankAccount")
                         .WithMany("Cards")
                         .HasForeignKey("BankAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -422,9 +452,9 @@ namespace BankingSystemProject.Migrations
                     b.Navigation("BankAccount");
                 });
 
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.Transaction", b =>
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.Transaction", b =>
                 {
-                    b.HasOne("BankingSystemProject.Models.User", "User")
+                    b.HasOne("BankingSystemProject.Data.Models.User", "User")
                         .WithMany("Transactions")
                         .HasForeignKey("SenderUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -433,9 +463,9 @@ namespace BankingSystemProject.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.Withdrawal", b =>
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.Withdrawal", b =>
                 {
-                    b.HasOne("BankingSystemProject.Models.User", "User")
+                    b.HasOne("BankingSystemProject.Data.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -455,7 +485,7 @@ namespace BankingSystemProject.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("BankingSystemProject.Models.User", null)
+                    b.HasOne("BankingSystemProject.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -464,7 +494,7 @@ namespace BankingSystemProject.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("BankingSystemProject.Models.User", null)
+                    b.HasOne("BankingSystemProject.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -479,7 +509,7 @@ namespace BankingSystemProject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BankingSystemProject.Models.User", null)
+                    b.HasOne("BankingSystemProject.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -488,23 +518,23 @@ namespace BankingSystemProject.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("BankingSystemProject.Models.User", null)
+                    b.HasOne("BankingSystemProject.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BankingSystemProject.Core.Tables.BankAccount", b =>
-                {
-                    b.Navigation("Cards");
-                });
-
-            modelBuilder.Entity("BankingSystemProject.Models.User", b =>
+            modelBuilder.Entity("BankingSystemProject.Data.Models.User", b =>
                 {
                     b.Navigation("BankAccounts");
 
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("BankingSystemProject.Data.Tables.BankAccount", b =>
+                {
+                    b.Navigation("Cards");
                 });
 #pragma warning restore 612, 618
         }

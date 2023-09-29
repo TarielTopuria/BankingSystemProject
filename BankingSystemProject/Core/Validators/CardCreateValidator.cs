@@ -23,8 +23,8 @@ namespace BankingSystemProject.Core.Validators
                 .GreaterThanOrEqualTo(DateTime.UtcNow)
                 .LessThanOrEqualTo(DateTime.UtcNow.AddYears(10));
 
-            RuleFor(card => card.CVV).NotEmpty().Length(3);
-            RuleFor(card => card.PIN).NotEmpty().Length(4);
+            RuleFor(card => card.CVV).NotEmpty().Length(3).Must(BeNumeric).WithMessage("CVV must be numeric");
+            RuleFor(card => card.PIN).NotEmpty().Length(4).Must(BeNumeric).WithMessage("PIN must be numeric");
         }
 
         private bool BeNumeric(string value)

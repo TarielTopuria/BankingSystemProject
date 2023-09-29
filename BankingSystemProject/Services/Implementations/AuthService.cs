@@ -29,7 +29,7 @@ namespace BankingSystemProject.Services.Implementations
         {
             try
             {
-                var identityUser = await userManager.Users.FirstAsync(u => u.Email == credentials.UserName) ?? throw new ArgumentException("User not found");
+                var identityUser = await userManager.Users.FirstOrDefaultAsync(u => u.Email == credentials.UserName) ?? throw new BadHttpRequestException("User not found");
 
                 if(!await userManager.CheckPasswordAsync(identityUser, credentials.Password))
                 {
@@ -57,7 +57,7 @@ namespace BankingSystemProject.Services.Implementations
 
                 if(string.IsNullOrEmpty(tokenString))
                 {
-                    throw new BadHttpRequestException("Error occured while attempting to generate token");
+                    throw new Exception("Error occured while attempting to generate token");
                 }
 
                 return tokenString;
@@ -74,7 +74,7 @@ namespace BankingSystemProject.Services.Implementations
             {
                 var card = await context.Cards
                     .Where(card => card.CardNumber == credentials.CardNumber && card.PIN == credentials.PIN)
-                    .FirstAsync() ?? throw new BadHttpRequestException("CardNumber or PIN is incorrect");
+                    .FirstOrDefaultAsync() ?? throw new BadHttpRequestException("CardNumber or PIN is incorrect");
 
                 var bankAccount = await context.BankAccounts
                     .Where(x => x.Id == card.BankAccountId)
@@ -103,7 +103,7 @@ namespace BankingSystemProject.Services.Implementations
                 return tokenString;
             }catch (Exception ex)
             {
-                Log.Error(ex, "Error occurred during using ATMLogin method");
+                Log.Error(ex, "Error occurred during using ATM Login method");
                 throw;
             }
         }

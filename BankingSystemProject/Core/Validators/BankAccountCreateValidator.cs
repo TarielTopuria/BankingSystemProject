@@ -10,7 +10,7 @@ namespace BankingSystemProject.Core.Validators
             RuleFor(account => account.IBAN)
                 .NotEmpty()
                 .Must(BeAValidIBAN).WithMessage("IBAN must follow \"^GE00TT\\d{16}$\" pattern");
-            RuleFor(account => account.Amount).GreaterThan(0);
+            RuleFor(account => account.Amount).GreaterThanOrEqualTo(0);
             RuleFor(account => account.CurrencyCode).NotEmpty().IsInEnum().WithMessage("Currency must be enum 'GEL' = 1, 'USD' = 2, 'EUR' = 3");
             RuleFor(account => account.UserId).NotEmpty();
         }

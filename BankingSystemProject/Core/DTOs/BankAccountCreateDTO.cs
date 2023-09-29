@@ -6,7 +6,7 @@ namespace BankingSystemProject.Core.DTOs
     {
         public string IBAN { get; set; }
         public decimal Amount { get; set; }
-        public Currencies CurrencyCode { get; set; }
+        public CurrenciesEnum CurrencyCode { get; set; }
         public string UserId { get; set; }
     }
 }

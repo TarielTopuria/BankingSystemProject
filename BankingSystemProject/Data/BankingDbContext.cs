@@ -1,5 +1,7 @@
-﻿using BankingSystemProject.Data.Models;
+﻿using BankingSystemProject.Core.Enums;
+using BankingSystemProject.Data.Models;
 using BankingSystemProject.Data.Tables;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +22,7 @@ namespace BankingSystemProject.Data
         {
             //თეიბლებს შორის რელაციების სირთულის გამო ბაზა დაკონფიგურირებულია ჰარდად
             base.OnModelCreating(modelBuilder);
+            EnsureDefaultRoles(modelBuilder);
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.BankAccounts)
@@ -35,6 +38,21 @@ namespace BankingSystemProject.Data
                 .HasMany(u => u.Transactions)
                 .WithOne(b => b.User)
                 .HasForeignKey(b => b.SenderUserId);
+        }
+
+        private void EnsureDefaultRoles(ModelBuilder modelBuilder)
+        {
+            string[] defaultRoles = Enum.GetNames(typeof(RolesEnum));
+
+            foreach (var roleName in defaultRoles)
+            {
+                modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = roleName,
+                    NormalizedName = roleName.ToUpper()
+                });
+            }
         }
     }
 }

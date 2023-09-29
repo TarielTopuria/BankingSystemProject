@@ -63,12 +63,12 @@ namespace BankingSystemProject.Services.Implementations
                             .FirstOrDefault(currency => currency.code == "EUR")?.rate ?? 0;
 
                         // ითვლის სხვადასხვა კომბინაციას გაცვლითი კურსისთვის
-                        await UpdateExchangeRate(Currencies.GEL, Currencies.USD, 1 / gelToUsdRate);
-                        await UpdateExchangeRate(Currencies.GEL, Currencies.EUR, 1 / gelToEurRate);
-                        await UpdateExchangeRate(Currencies.USD, Currencies.GEL, gelToUsdRate);
-                        await UpdateExchangeRate(Currencies.EUR, Currencies.GEL, gelToEurRate);
-                        await UpdateExchangeRate(Currencies.USD, Currencies.EUR, gelToUsdRate / gelToEurRate);
-                        await UpdateExchangeRate(Currencies.EUR, Currencies.USD, gelToEurRate / gelToUsdRate);
+                        await UpdateExchangeRate(CurrenciesEnum.GEL, CurrenciesEnum.USD, 1 / gelToUsdRate);
+                        await UpdateExchangeRate(CurrenciesEnum.GEL, CurrenciesEnum.EUR, 1 / gelToEurRate);
+                        await UpdateExchangeRate(CurrenciesEnum.USD, CurrenciesEnum.GEL, gelToUsdRate);
+                        await UpdateExchangeRate(CurrenciesEnum.EUR, CurrenciesEnum.GEL, gelToEurRate);
+                        await UpdateExchangeRate(CurrenciesEnum.USD, CurrenciesEnum.EUR, gelToUsdRate / gelToEurRate);
+                        await UpdateExchangeRate(CurrenciesEnum.EUR, CurrenciesEnum.USD, gelToEurRate / gelToUsdRate);
 
                         return "Exchange rates updated successfully.";
                     }
@@ -104,7 +104,7 @@ namespace BankingSystemProject.Services.Implementations
         /// <param name="fromCurrencyCode">გაცვლითი კურსი -დან.</param>
         /// <param name="toCurrencyCode">გაცვლითი კურსი -ში.</param>
         /// <param name="rate">გაცვლითი კურსის მნიშვნელობა.</param>
-        private async Task UpdateExchangeRate(Currencies fromCurrencyCode, Currencies toCurrencyCode, decimal rate)
+        private async Task UpdateExchangeRate(CurrenciesEnum fromCurrencyCode, CurrenciesEnum toCurrencyCode, decimal rate)
         {
             try
             {

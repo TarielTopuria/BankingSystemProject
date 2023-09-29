@@ -12,7 +12,7 @@ namespace BankingSystemProject.Data.Tables
         public int Id { get; set; }
         public string IBAN { get; set; }
         public decimal Amount { get; set; }
-        public Currencies CurrencyCode { get; set; }
+        public CurrenciesEnum CurrencyCode { get; set; }
         public string UserId { get; set; }
         public User User { get; set; }
         public List<Card> Cards { get; set; }

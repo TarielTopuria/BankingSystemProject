@@ -1,6 +1,6 @@
 ﻿namespace BankingSystemProject.Core.Enums
 {
-    public enum Currencies
+    public enum CurrenciesEnum
     {
         GEL = 1,
         USD = 2,

@@ -43,10 +43,16 @@ namespace BankingSystemProject.Controllers
                 Log.Error("BadRequest Error occured while attempting to Register User");
                 return BadRequest();
             }
+            catch (BadHttpRequestException ex)
+            {
+                // ექსეფშენის დალოგვა
+                Log.Error(ex.Message, "An error occurred while registering a user.");
+                return BadRequest($"{ex.Message}");
+            }
             catch (Exception ex)
             {
                 // ექსეფშენის დალოგვა
-                Log.Error(ex, "An error occurred while registering a user.");
+                Log.Error(ex.Message, "An error occurred while registering a user.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
             }
         }
@@ -66,6 +72,16 @@ namespace BankingSystemProject.Controllers
 
                 await operatorService.AddBankAccountAsync(bankAccountToCreate);
                 return Ok("Bank Account created successfully.");
+            }
+            catch (BadHttpRequestException ex)
+            {
+                Log.Error(ex.Message, "An error occurred while addomg bank account to the user.");
+                return BadRequest($"{ex.Message}");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Error(ex.Message, "An error occurred while addomg bank account to the user.");
+                return BadRequest($"{ex.Message}");
             }
             catch (Exception ex)
             {
@@ -89,6 +105,11 @@ namespace BankingSystemProject.Controllers
 
                 await operatorService.AddCardAsync(cardToCreate);
                 return Ok("Card created successfully.");
+            }
+            catch(BadHttpRequestException ex)
+            {
+                Log.Error(ex.Message, "Error occured while attempting to create card");
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {

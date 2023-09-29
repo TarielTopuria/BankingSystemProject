@@ -1,5 +1,7 @@
-﻿using BankingSystem.Core.DTOs;
+﻿using AutoMapper;
+using BankingSystem.Core.DTOs;
 using BankingSystem.Services.Interfaces;
+using BankingSystemProject.Core.DTOs;
 using BankingSystemProject.Data;
 using BankingSystemProject.Data.Tables;
 using Microsoft.EntityFrameworkCore;
@@ -10,19 +12,27 @@ namespace BankingSystemProject.Services.Implementations
     public class NetBankService : INetBankService
     {
         private readonly BankingDbContext context;
+        private readonly IMapper mapper;
 
-        public NetBankService(BankingDbContext context)
+        public NetBankService(BankingDbContext context, IMapper mapper)
         {
             this.context = context;
+            this.mapper = mapper;
         }
-        public async Task<List<BankAccount>> GetBankAccountsForUserAsync(string userId)
-        {   
-            return await context.BankAccounts.Where(account => account.UserId == userId).ToListAsync();
+        public async Task<List<BankAccountResponseDTO>> GetBankAccountsForUserAsync(string userId)
+        {
+            var bankAccounts = await context.BankAccounts
+                .Where(account => account.UserId == userId)
+                .ToListAsync();
+
+            var bankAccountResponseDTOs = mapper.Map<List<BankAccountResponseDTO>>(bankAccounts);
+
+            return bankAccountResponseDTOs;
         }
 
-        public async Task<List<Card>> GetCardsForUserAsync(string userId)
+        public async Task<List<CardResponseDTO>> GetCardsForUserAsync(string userId)
         {
-            return await context.Cards
+            var cards = await context.Cards
                 .Join(
                     context.BankAccounts,
                     card => card.BankAccountId,
@@ -31,7 +41,12 @@ namespace BankingSystemProject.Services.Implementations
                 .Where(joinResult => joinResult.BankAccount.UserId == userId)
                 .Select(joinResult => joinResult.Card)
                 .ToListAsync();
+
+            var cardResponseDTOs = mapper.Map<List<CardResponseDTO>>(cards);
+
+            return cardResponseDTOs;
         }
+
 
         public async Task CreateTransactionAsync(TransactionCreateDTO transactionCreateDTO)
         {
@@ -44,6 +59,7 @@ namespace BankingSystemProject.Services.Implementations
 
                 if(transactionCreateDTO.UserId != senderAccount.UserId)
                 {
+                    Log.Error("The sender account must belong to the sender user");
                     throw new BadHttpRequestException("The sender account must belong to the sender user");
                 }
 
@@ -51,12 +67,19 @@ namespace BankingSystemProject.Services.Implementations
                     .Where(x => x.IBAN == transactionCreateDTO.ReceiverBankAccountIBAN)
                     .FirstOrDefaultAsync();
 
-                if (senderAccount == null || receiverAccount == null)
+                if (senderAccount == null)
                 {
-                    throw new Exception("Sender or receiver account not found.");
+                    Log.Error("Sender account not found.");
+                    throw new BadHttpRequestException("Sender account not found.");
                 }
 
-                // განსაზღვრავს გამგზავნი და მიმღები ანგარიშების ვალუტებს
+                if (receiverAccount == null)
+                {
+                    Log.Error("Receiver account not found.");
+                    throw new BadHttpRequestException("Receiver account not found.");
+                }
+
+                // ინახავს გამგზავნი და მიმღები ანგარიშების ვალუტებს
                 var senderCurrency = senderAccount.CurrencyCode;
                 var receiverCurrency = receiverAccount.CurrencyCode;
 
@@ -67,22 +90,22 @@ namespace BankingSystemProject.Services.Implementations
 
                 if (senderAccount.UserId == receiverAccount.UserId)
                 {
-                    // ამოწმებს ბალანსი საკმარისია თუ არა
-                    if (senderAccount.Amount < amountToTransfer)
-                    {
-                        throw new Exception("Insufficient balance.");
-                    }
-
                     // ამოწმებს ტრანზაქციის ვალუტა და გამგზავნის ანგარიშის ვალუტა იდენტურია თუ არა
                     if (senderCurrency != transactionCreateDTO.CurrencyCode)
                     {
                         // აბრუნებს შესაბამის გაცვლით კურსს
                         var exchangeRate = await context.ExchangeRates
                             .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == senderCurrency)
-                            .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
+                            .FirstOrDefaultAsync() ?? throw new BadHttpRequestException("Exchange rate not found.");
 
                         decimal rate = exchangeRate.Rate;
                         decimal convertedAmount = amountToTransfer * rate;
+
+                        if (senderAccount.Amount < convertedAmount)
+                        {
+                            Log.Error("Insufficient balance");
+                            throw new BadHttpRequestException("Insufficient balance.");
+                        }
 
                         senderAccount.Amount -= convertedAmount;
 
@@ -91,11 +114,11 @@ namespace BankingSystemProject.Services.Implementations
                         {
                             // აბრუნებს შესაბამის გაცვლით კურსს
                             var receiverExchangeRate = await context.ExchangeRates
-                                .Where(rate => rate.FromCurrencyCode == receiverCurrency && rate.ToCurrencyCode == transactionCreateDTO.CurrencyCode)
-                                .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
+                                .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == receiverCurrency)
+                                .FirstOrDefaultAsync() ?? throw new BadHttpRequestException("Exchange rate not found.");
 
                             decimal receiverRate = receiverExchangeRate.Rate;
-                            decimal finalConvertedAmount = convertedAmount * receiverRate;
+                            decimal finalConvertedAmount = amountToTransfer * receiverRate;
                             receiverAccount.Amount += finalConvertedAmount;
                         }
                         else
@@ -110,17 +133,26 @@ namespace BankingSystemProject.Services.Implementations
 
                         var receiverExchangeRate = await context.ExchangeRates
                             .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == receiverCurrency)
-                            .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
+                            .FirstOrDefaultAsync() ?? throw new BadHttpRequestException("Exchange rate not found.");
 
                         decimal receiverRate = receiverExchangeRate.Rate;
                         decimal convertedAmount = amountToTransfer * receiverRate;
-
+                        if (senderAccount.Amount < convertedAmount)
+                        {
+                            Log.Error("Insufficient balance");
+                            throw new BadHttpRequestException("Insufficient balance.");
+                        }
                         senderAccount.Amount -= amountToTransfer;
                         receiverAccount.Amount += convertedAmount;
                     }
                     else
                     {
-                        // მიმღებისა და გამგზავნი მომხმარებლის ვალუტები იდენტურია და შეესაბამება ტრანზაქციი ვალუტას.
+                        // მიმღებისა და გამგზავნი მომხმარებლის ვალუტები იდენტურია და შეესაბამება ტრანზაქციის ვალუტას.
+                        if (senderAccount.Amount < amountToTransfer)
+                        {
+                            Log.Error("Insufficient balance");
+                            throw new BadHttpRequestException("Insufficient balance.");
+                        }
                         senderAccount.Amount -= amountToTransfer;
                         receiverAccount.Amount += amountToTransfer;
                     }
@@ -132,18 +164,21 @@ namespace BankingSystemProject.Services.Implementations
                     commissionAmount = amountToTransfer * commissionRate;
                     finalCommissionAmount = commissionAmount + 0.5m;
 
-                    if (senderAccount.Amount < amountToTransfer + commissionAmount)
-                    {
-                        throw new Exception("Insufficient balance.");
-                    }
                     if (senderCurrency != transactionCreateDTO.CurrencyCode)
                     {
                         var exchangeRate = await context.ExchangeRates
                             .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == senderCurrency)
-                            .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
+                            .FirstOrDefaultAsync() ?? throw new BadHttpRequestException("Exchange rate not found.");
 
                         decimal rate = exchangeRate.Rate;
                         decimal convertedAmount = amountToTransfer * rate;
+
+                        if (senderAccount.Amount < convertedAmount)
+                        {
+                            Log.Error("Insufficient balance");
+                            throw new BadHttpRequestException("Insufficient balance.");
+                        }
+
                         commissionAmount *= exchangeRate.Rate;
 
                         senderAccount.Amount -= (convertedAmount + finalCommissionAmount);
@@ -151,11 +186,11 @@ namespace BankingSystemProject.Services.Implementations
                         if (receiverCurrency != transactionCreateDTO.CurrencyCode)
                         {
                             var receiverExchangeRate = await context.ExchangeRates
-                                .Where(rate => rate.FromCurrencyCode == receiverCurrency && rate.ToCurrencyCode == transactionCreateDTO.CurrencyCode)
-                                .FirstOrDefaultAsync() ?? throw new Exception("Exchange rate not found.");
+                                .Where(rate => rate.FromCurrencyCode == transactionCreateDTO.CurrencyCode && rate.ToCurrencyCode == receiverCurrency)
+                                .FirstOrDefaultAsync() ?? throw new BadHttpRequestException("Exchange rate not found.");
 
                             decimal receiverRate = receiverExchangeRate.Rate;
-                            decimal finalConvertedAmount = convertedAmount * receiverRate;
+                            decimal finalConvertedAmount = amountToTransfer * receiverRate;
 
                             receiverAccount.Amount += finalConvertedAmount;
                         }
@@ -173,11 +208,22 @@ namespace BankingSystemProject.Services.Implementations
                         decimal receiverRate = receiverExchangeRate.Rate;
                         decimal convertedAmount = amountToTransfer * receiverRate;
 
+                        if (senderAccount.Amount < convertedAmount)
+                        {
+                            Log.Error("Insufficient balance");
+                            throw new BadHttpRequestException("Insufficient balance.");
+                        }
+
                         senderAccount.Amount -= (amountToTransfer + finalCommissionAmount);
                         receiverAccount.Amount += convertedAmount;
                     }
                     else
                     {
+                        if (senderAccount.Amount < amountToTransfer)
+                        {
+                            Log.Error("Insufficient balance");
+                            throw new BadHttpRequestException("Insufficient balance.");
+                        }
                         senderAccount.Amount -= (amountToTransfer + finalCommissionAmount);
                         receiverAccount.Amount += amountToTransfer;
                     }
@@ -199,13 +245,13 @@ namespace BankingSystemProject.Services.Implementations
             }
             catch (DbUpdateException ex)
             {
-                Log.Error(ex, "An error occurred while saving the entity changes.");
-                throw new Exception("An error occurred while saving the entity changes.", ex);
+                Log.Error(ex.Message, "An error occurred while saving the entity changes.");
+                throw new DbUpdateException("An error occurred while saving the entity changes.", ex);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "An error occurred in the NetBankService.");
-                throw;
+                Log.Error(ex.Message, "An error occurred in the NetBankService.");
+                throw new Exception (ex.Message);
             }
         }
     }

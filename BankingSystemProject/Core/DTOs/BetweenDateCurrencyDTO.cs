@@ -6,6 +6,6 @@ namespace BankingSystem.Core.DTOs
     {
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
-        public Currencies CurrencyCode { get; set; }
+        public CurrenciesEnum CurrencyCode { get; set; }
     }
 }
